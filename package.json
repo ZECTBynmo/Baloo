@@ -1,0 +1,18 @@
+{
+  "name": "baloo",
+  "version": "0.0.0",
+  "description": "Leto template project for a node.js server using express",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ZECTBynmo/Baloo.git"
+  },
+  "author": "ZECTBynmo",
+  "license": "CLOSED SOURCE",
+  "gitHead": "df460142bf0ea4c4501591510e2238c621621e95",
+  "readmeFilename": "README.md"
+}

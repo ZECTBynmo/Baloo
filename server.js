@@ -3,7 +3,8 @@ var express = require('express'),
     path = require('path'),
     http = require('http'),
     io = require('socket.io'),
-    router = require(__dirname + '/routes/router');
+    Router = require(__dirname + '/routes/router').Router,
+    router = new Router();
 
 var app = express();
 

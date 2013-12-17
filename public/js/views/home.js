@@ -3,112 +3,15 @@ window.HomeView = Backbone.View.extend({
     initialize:function () {
         this.render();
 
-        if( document.createElement('audio').canPlayType ) {
-		  	if( !document.createElement('audio').canPlayType('audio/mpeg')
-	  	  	 && !document.createElement('audio').canPlayType('audio/ogg') ) {
-		  	  	swfobject.embedSWF("http://www.html5rocks.com/en/tutorials/audio/quick/player_mp3_mini.swf",
-		  	  	                   "default_player_fallback", "200", "20", "9.0.0", "",
-		  	  	                   {"mp3":"http://www.html5rocks.com/en/tutorials/audio/quick/test.mp3"},
-		  	  	                   {"bgcolor":"#085c68"}
-		  	  	                  );
-		  	  	swfobject.embedSWF("http://www.html5rocks.com/en/tutorials/audio/quick/player_mp3_mini.swf",
-		  	  	                   "custom_player_fallback", "200", "20", "9.0.0", "",
-		  	  	                   {"mp3":"http://www.html5rocks.com/en/tutorials/audio/quick/test.mp3"},
-		  	  	                   {"bgcolor":"#085c68"}
-		  	  	                  );
-		  	  	document.getElementById('audio_with_controls').style.display = 'none';
-		  	} else {
-		  	  	// HTML5 audio + mp3 support
-		  	  	//document.getElementById('player').style.display = 'block';
-		  	}
-		}
+        $(".download-button", this.el).click( function() {
+			upload();
+		});
     },
 
     render:function () {
     	var _this = this;
 
-		var zipProgress = document.createElement("progress");
-		var downloadButton = document.getElementById("download-button");
-		var fileList = document.getElementById("file-list");
-		var filenameInput = document.getElementById("filename-input");
-
-		var model = (function() {
-			var zipFileEntry, zipWriter, writer, creationMethod, URL = window.webkitURL || window.mozURL || window.URL;
-
-			return {
-				setCreationMethod : function(method) {
-					creationMethod = method;
-				},
-				addFiles : function addFiles(files, oninit, onadd, onprogress, onend) {
-					var addIndex = $("#dropzone > div").size() - files.length;
-
-					function nextFile() {
-						var file = files[addIndex];
-						onadd(file);
-						zipWriter.add(file.name, new zip.BlobReader(file), function() {
-							addIndex++;
-							if( addIndex < files.length )
-								nextFile();
-							else
-								onend();
-						}, function( current, total ) { 
-							onprogress( current, total, addIndex ); 
-						});
-					}
-
-					function createZipWriter() {
-						zip.createWriter(writer, function(writer) {
-							zipWriter = writer;
-							oninit();
-							nextFile();
-						}, onerror);
-					}
-
-					if (zipWriter)
-						nextFile();
-					else if (creationMethod == "Blob") {
-						writer = new zip.BlobWriter();
-						createZipWriter();
-					} else {
-						createTempFile(function(fileEntry) {
-							zipFileEntry = fileEntry;
-							writer = new zip.FileWriter(zipFileEntry);
-							createZipWriter();
-						});
-					}
-				},
-				getBlobURL : function(callback) {
-					zipWriter.close(function(blob) {
-						var blobURL = creationMethod == "Blob" ? URL.createObjectURL(blob) : zipFileEntry.toURL();
-						callback(blobURL);
-						zipWriter = null;
-					});
-				},
-				getBlob : function(callback) {
-					zipWriter.close(callback);
-				}
-			};
-		})();
-
-		model.setCreationMethod( "Blob" ); // Lock to blob!
-
-        $(this.el).html(this.template());
-
-        function downloadBlob() {
-        	model.getBlobURL(function(blobURL) {
-				var clickEvent;
-				clickEvent = document.createEvent("MouseEvent");
-				clickEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-				
-				var downloadButton = document.getElementById("download-button");
-
-				downloadButton.href = blobURL;
-				downloadButton.download = "filenameInput.zip";
-				downloadButton.dispatchEvent( clickEvent );
-			});
-			event.preventDefault();
-			return false;
-        }
+    	$(this.el).html(this.template());
 
         var all_files = [],
 		    current_file_id = 0,
@@ -174,7 +77,7 @@ window.HomeView = Backbone.View.extend({
 						if (zipProgress.parentNode)
 							zipProgress.parentNode.removeChild(zipProgress);
 
-						downloadBlob();
+						console.log( "Finished zipping files" );
 //						fileInput.value = "";
 //						fileInput.disabled = false;
 					});
@@ -241,3 +144,25 @@ window.HomeView = Backbone.View.extend({
     }
 
 });
+
+function upload() {
+	var name = $("#name-input").val();
+
+	model.getBlobURL( function(blobURL, blob) {
+		var data = {
+			name: name,
+			file: blob
+		};
+
+		$.post( "/upload", {
+			url: "/upload",
+			data: {
+				file: blobURL,
+				name: name,
+			},
+				success: function(response) {
+				alert('ok');
+			}
+		});
+	});	
+}

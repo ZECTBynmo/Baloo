@@ -9,8 +9,8 @@ var model = (function() {
 		setCreationMethod : function(method) {
 			creationMethod = method;
 		},
-		addFiles : function addFiles(files, oninit, onadd, onprogress, onend) {
-			var addIndex = $("#dropzone > div").size() - files.length;
+		addFiles : function addFiles(files, numNew, oninit, onadd, onprogress, onend) {
+			var addIndex = $("#dropzone > div").size() - numNew;
 
 			function nextFile() {
 				var file = files[addIndex];

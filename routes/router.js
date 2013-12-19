@@ -40,15 +40,18 @@ Router.prototype.upload = function( req, res ) {
     }
 
 //    fileBuffer = new Buffer( data.file, "base64" );
-    fs.writeFileSync( outputPath, data.file );
-    console.log( outputPath );
-    console.log( data );
 
-    var successData = {
-    	guid: uploadID
-    };
+    var zipFile = req.files["files.zip"];
 
-    res.json( 200, successData );
+    fs.readFile( zipFile.path, function( err, data ) {
+        fs.writeFile( outputPath, data, function( err ) {
+            var successData = {
+                guid: uploadID
+            };
+
+            res.json( 200, successData );
+        });
+    });
 }
 
 exports.Router = Router;

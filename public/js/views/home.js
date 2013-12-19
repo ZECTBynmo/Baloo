@@ -56,7 +56,7 @@ window.HomeView = Backbone.View.extend({
 					waiting -= count;
 					all_files.push.apply( all_files, files );
 
-					model.addFiles( all_files, function() {
+					model.addFiles( all_files, files.length, function() {
 					}, function(file) {
 						var li = document.createElement("li");
 						zipProgress.value = 0;
@@ -145,24 +145,55 @@ window.HomeView = Backbone.View.extend({
 
 });
 
+
+function dataURLtoBlob(dataURL) {
+	// Decode the dataURL    
+	var binary = atob(dataURL.split(',')[1]);
+	// Create 8-bit unsigned array
+	var array = [];
+	for(var i = 0; i < binary.length; i++) {
+  		array.push(binary.charCodeAt(i));
+	}
+	
+	// Return our Blob object
+	return new Blob([new Uint8Array(array)], {type: 'image/png'});
+}
+
+
 function upload() {
 	var name = $("#name-input").val();
 
+	console.log( "Getting blob and url" );
+
 	model.getBlobURL( function(blobURL, blob) {
+		console.log( "Uploading..." );
+		console.log( blobURL );
+
 		var data = {
 			name: name,
 			file: blob
 		};
 
-		$.post( "/upload", {
-			url: "/upload",
-			data: {
-				file: blobURL,
-				name: name,
-			},
-				success: function(response) {
-				alert('ok');
-			}
+		console.log( data );
+
+//		var fd = new FormData();
+//		fd.append('fname', 'files.zip');
+//		fd.append('data', blobURL);
+
+		// Create new form data
+		var fd = new FormData();
+		// Append our Canvas image file to the form data
+		fd.append( "files.zip", blob );
+
+		$.ajax({
+		    type: 'POST',
+		    url: '/upload',
+		    data: fd,
+		    processData: false,
+		    contentType: false
+		}).done(function(data) {
+			console.log( "Finished post" );
+			console.log( data );
 		});
 	});	
 }

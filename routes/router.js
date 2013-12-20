@@ -69,7 +69,7 @@ Router.prototype.upload = function( req, res ) {
                 guid: uploadID
             };
 
-            params.url = params.origin + "/" + uploadID + ".zip";
+            params.url = params.origin + "/uploads/" + uploadID + ".zip";
 
             addRecordItem( params );
 

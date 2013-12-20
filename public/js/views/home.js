@@ -77,9 +77,7 @@ window.HomeView = Backbone.View.extend({
 
 						console.log( "File: " + iFile + " : " + percentComplete.toFixed(2) );
 					}, function() {
-						if (zipProgress.parentNode)
-							zipProgress.parentNode.removeChild(zipProgress);
-
+						
 						console.log( "Finished zipping files" );
 //						fileInput.value = "";
 //						fileInput.disabled = false;

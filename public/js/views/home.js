@@ -6,6 +6,8 @@ window.HomeView = Backbone.View.extend({
         $(".download-button", this.el).click( function() {
 			upload();
 		});
+
+		$(".finished-area", this.el).hide();
     },
 
     render:function () {
@@ -30,6 +32,7 @@ window.HomeView = Backbone.View.extend({
 		};
 
 		var drop = function(evt) {
+			$(".finished-area", this.el).show();
 
 			noopHandler( evt );
 
@@ -154,14 +157,25 @@ function dataURLtoBlob(dataURL) {
 	for(var i = 0; i < binary.length; i++) {
   		array.push(binary.charCodeAt(i));
 	}
-	
+
 	// Return our Blob object
 	return new Blob([new Uint8Array(array)], {type: 'image/png'});
 }
 
 
 function upload() {
-	var name = $("#name-input").val();
+	var name = $("#name-input").val(),
+		email = $("#email-input").val(),
+		noise = document.getElementById("noise-type-input").value;
+
+	if( name == "" || email == "" )
+		return alert( "Please fill out your info, so we can get in touch!" );
+
+	var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+	if( !filter.test(email) ) {
+		return alert( "Your email address is invalid... :/" );
+	}
 
 	console.log( "Getting blob and url" );
 
@@ -171,19 +185,21 @@ function upload() {
 
 		var data = {
 			name: name,
-			file: blob
+			email: email,
+			noise: noise,
+			origin: window.location.origin,
 		};
 
+		console.log( "DATA" );
 		console.log( data );
-
-//		var fd = new FormData();
-//		fd.append('fname', 'files.zip');
-//		fd.append('data', blobURL);
 
 		// Create new form data
 		var fd = new FormData();
 		// Append our Canvas image file to the form data
 		fd.append( "files.zip", blob );
+		fd.append( "params", JSON.stringify(data) );
+
+		$("#dropzone").html("<br><br><br><h1>Please wait while we upload your files...</h1>");
 
 		$.ajax({
 		    type: 'POST',
@@ -194,6 +210,8 @@ function upload() {
 		}).done(function(data) {
 			console.log( "Finished post" );
 			console.log( data );
+
+			$("#dropzone").html("<br><br><br><h1>Finished uploading... Thanks " + name + "! :)</h1>");
 		});
 	});	
 }

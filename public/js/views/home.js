@@ -77,7 +77,7 @@ window.HomeView = Backbone.View.extend({
 
 						console.log( "File: " + iFile + " : " + percentComplete.toFixed(2) );
 					}, function() {
-						
+
 						console.log( "Finished zipping files" );
 //						fileInput.value = "";
 //						fileInput.disabled = false;
@@ -197,19 +197,27 @@ function upload() {
 		fd.append( "files.zip", blob );
 		fd.append( "params", JSON.stringify(data) );
 
-		$("#dropzone").html("<br><br><br><h1>Please wait while we upload your files...</h1>");
+		$("#dropzone").html("<br><br><br><h1>Please wait while we upload your files: ...%</h1>");
 
-		$.ajax({
-		    type: 'POST',
-		    url: '/upload',
-		    data: fd,
-		    processData: false,
-		    contentType: false
-		}).done(function(data) {
+		var xhr = new XMLHttpRequest();
+    
+    	xhr.open( 'post', '/upload', true );
+
+    	xhr.upload.onprogress = function( e ) {
+    		console.log( e );
+      		if( e.lengthComputable ) {
+  		  	    var percentage = (e.loaded / e.total) * 100;
+  		  	    $("#dropzone").html("<br><br><br><h1>Please wait while we upload your files: " + percentage + "%</h1>");
+      		}
+	    };
+
+	    xhr.upload.onloadend = function( e ) {
 			console.log( "Finished post" );
 			console.log( data );
 
 			$("#dropzone").html("<br><br><br><h1>Finished uploading... Thanks " + name + "! :)</h1>");
-		});
+	    };
+
+	    xhr.send( fd );
 	});	
 }
